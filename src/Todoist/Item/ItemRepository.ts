@@ -10,9 +10,6 @@ class ItemRepository {
 
   /**
    * 本日完了させた Item[] を返す
-   *
-   * @param {Project} project
-   * @returns {Promise<Item[]>}
    */
   async getCompletedItems(project: Project): Promise<Item[]> {
     return axios.get("")
