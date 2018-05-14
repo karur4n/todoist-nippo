@@ -1,9 +1,7 @@
 import axios, { AxiosResponse } from "axios"
 import PersonalToken from "./PersonalToken"
 
-interface OAuthToken {
-  token: string
-}
+type OAuthToken = string
 
 export default class OAuthTokenRepository {
   oAuthTokens: { [personalToken: string]: string } = {}

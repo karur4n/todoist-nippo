@@ -1,3 +1,3 @@
-export default interface PersonalToken {
-  token: string
-}
+type PersonalToken = string
+
+export default PersonalToken

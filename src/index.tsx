@@ -1,11 +1,11 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import App from "./App"
+import Root from "./Root"
 
 document.addEventListener("DOMContentLoaded", () => {
   const rootEl = document.getElementById("root")
 
   if (rootEl) {
-    ReactDOM.render(<App />, rootEl)
+    ReactDOM.render(<Root />, rootEl)
   }
 })
