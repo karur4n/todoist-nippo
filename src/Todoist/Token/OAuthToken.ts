@@ -4,7 +4,6 @@ import PersonalToken from "./PersonalToken"
 type OAuthToken = string
 
 export default class OAuthTokenRepository {
-  oAuthTokens: { [personalToken: string]: string } = {}
   clientId: string
   clientSecret: string
 
@@ -26,18 +25,14 @@ export default class OAuthTokenRepository {
       },
       {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         }
       }
     )
 
     const oAuthToken = response.data.access_token
 
-    this.oAuthTokens[personalToken.token] = oAuthToken
-
-    return {
-      token: oAuthToken
-    }
+    return oAuthToken
   }
 }
 

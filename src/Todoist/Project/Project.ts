@@ -1,8 +1,11 @@
+import { CompletedItem, Task } from "../Item/Item"
+
 export interface ProjectProps {
   id: number
   name: string
   order: number
-  items: Item[]
+  tasks: Task[]
+  completedItems: CompletedItem[]
 }
 
 export type ProjectId = number
@@ -11,14 +14,16 @@ export default class Project {
   id: ProjectId
   name: string
   order: number
-  items: Item[]
-  selected: boolean
+  tasks: Task[]
+  completedItems: CompletedItem[]
+  selected: boolean = true
 
   constructor(props: ProjectProps) {
     this.id = props.id
     this.name = props.name
     this.order = props.order
-    this.items = props.items
+    this.tasks = props.tasks
+    this.completedItems = props.completedItems
   }
 
   toString(): string {

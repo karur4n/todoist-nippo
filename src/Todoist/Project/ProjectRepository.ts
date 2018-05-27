@@ -1,52 +1,77 @@
 import axios, { AxiosResponse } from "axios"
-import Project, { ProjectProps } from "./Project"
+import Project from "./Project"
+import {
+  CompletedItem,
+  CompletedItemProps,
+  Task,
+  TaskProps
+} from "../Item/Item"
 
-class ProjectRepository {
+export class ProjectRepository {
   private readonly token: string
-  projects?: Project[]
 
   constructor(token: string) {
     this.token = token
   }
 
-  async ready(): Promise<void> {
-    const params = new URLSearchParams()
-    params.append("sync_token", "*")
-    params.append("resource_types", '["projects", "items"]')
-    params.append("token", "8a1a2b34fd475b88db52a0f5c9c58bc9a8999041")
+  public async getAllProjects(): Promise<Project[]> {
+    const syncParams = new URLSearchParams()
+    syncParams.append("sync_token", "*")
+    syncParams.append("resource_types", '["projects", "items"]')
+    syncParams.append("token", this.token)
 
-    const response: AxiosResponse<ResponseSync> = await axios.post(
+    const syncResponse: AxiosResponse<ResponseSync> = await axios.post(
       "https://todoist.com/api/v7/sync",
-      params
+      syncParams
     )
 
-    const projects = response.data.projects.map(project => {
-      const items = response.data.items.filter(item => {
-        return item.project_id === project.id
-      })
-      new Project({
-        id: project.id,
-        name: project.name,
-        order: project.order,
-        items: items.map(item => {
-          return new Item({
+    const getAllParams = new URLSearchParams()
+    getAllParams.append("token", this.token)
+
+    const allCompletedResponse: AxiosResponse<
+      AllCompletedTasksResponse
+    > = await axios.post(
+      "https://todoist.com/api/v7/completed/get_all",
+      getAllParams
+    )
+
+    return syncResponse.data.projects.map(project => {
+      const completedItems = allCompletedResponse.data.items
+        .filter(item => {
+          return item.project_id === project.id
+        })
+        .map(item => {
+          const props: CompletedItemProps = {
+            id: item.id,
+            content: item.content,
+            completedDate: new Date(item.completed_date)
+          }
+
+          return new CompletedItem(props)
+        })
+
+      const tasks = syncResponse.data.items
+        .filter(item => {
+          return item.project_id === project.id
+        })
+        .map(item => {
+          const props: TaskProps = {
             id: item.id,
             content: item.content,
             indent: item.indent,
-            order: item.item_order,
-            completed: false,
-            completedDate: undefined
-          })
+            order: item.item_order
+          }
+
+          return new Task(props)
         })
+
+      return new Project({
+        id: project.id,
+        name: project.name,
+        order: project.order,
+        tasks: tasks,
+        completedItems: completedItems
       })
-    })
-
-    console.log(projects)
-  }
-
-  getAllProjects(): Promise<Project[]> {
-    return new Promise(resolve => {
-      resolve(this.projects)
     })
   }
 }
@@ -90,4 +115,15 @@ interface ResponseItem {
   is_archived: number
   sync_id?: number
   date_added: string
+}
+
+interface AllCompletedTasksResponse {
+  items: ResponseCompletedTask[]
+}
+
+interface ResponseCompletedTask {
+  id: number
+  content: string
+  project_id: number
+  completed_date: string
 }
